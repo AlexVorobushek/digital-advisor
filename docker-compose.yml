@@ -1,0 +1,78 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: advisor-db
+    environment:
+      POSTGRES_DB: advisor
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: advisor-n8n
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=admin
+      # URL через домен для вебхуков
+      - WEBHOOK_URL=https://autorepetit.com/n8n/
+      # Путь под которым будет доступен n8n (поддержка проксирования /n8n/)
+      - N8N_PATH=/n8n/
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: advisor-backend
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: advisor
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      # Используем Production URL для постоянной работы (без -test)
+      N8N_WEBHOOK_URL: http://n8n:5678/n8n/webhook/advisor-chat
+      N8N_USER: admin
+      N8N_PASSWORD: admin
+    depends_on:
+      - db
+      - n8n
+
+  frontend:
+    build:
+      context: ./reactAppV2
+      dockerfile: Dockerfile
+    container_name: advisor-frontend
+    ports:
+      - "3028:3028"
+    depends_on:
+      - backend
+
+  nginx:
+    image: nginx:stable-alpine
+    container_name: advisor-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - frontend
+      - backend
+      - n8n
+
+volumes:
+  postgres_data:
+  n8n_data:

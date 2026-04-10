@@ -1,0 +1,141 @@
+{
+  "name": "WebApp Advisor v2 (Fixed)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "advisor-chat",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -48,
+        864
+      ],
+      "id": "1c9fc798-b883-467e-a009-7806e337bdb1",
+      "name": "Webhook",
+      "webhookId": "dd0a6a93-9a80-49e1-b718-527440604931"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || {};\nreturn {\n  message: body.message || 'Привет',\n  user_name: body.user_name || 'Пользователь',\n  session_type: body.session_type || 'default'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        128,
+        864
+      ],
+      "id": "9dd6ebde-2688-4541-988d-8ea0d9886df2",
+      "name": "Parse Input"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"myField\": \"value\",\n  \"text\": \"lalala\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        752,
+        864
+      ],
+      "id": "36021a5c-bdbc-4a92-bbe1-063031d677b5",
+      "name": "Success Response"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "YOUR_ANTHROPIC_API_KEY"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-3-5-sonnet-20241022\",\n  \"max_tokens\": 512,\n  \"system\": \"Ты - Антон. Коуч по аутентичному лидерству. Общайся на ты.\",\n  \"messages\": [{ \"role\": \"user\", \"content\": \"{{ $json.message }}\" }]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        432,
+        864
+      ],
+      "id": "af1be580-7dd0-49c3-a4ba-6c1fb3585b26",
+      "name": "Call Claude API v3",
+      "credentials": {
+        "anthropicApi": {
+          "id": "VGzVGfjaFcwHr6QX",
+          "name": "Anthropic Kir"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Input": {
+      "main": [
+        [
+          {
+            "node": "Call Claude API v3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Claude API v3": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "c37952e5-deb2-4338-b413-75e9f97bb681",
+  "meta": {
+    "instanceId": "429c846cc4d95d7d70d490c79b64567bcff1b31952c60a53a8bdc02ecbd47c67"
+  },
+  "id": "G5xuNal6FkkGP3j9",
+  "tags": []
+}

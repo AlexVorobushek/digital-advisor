@@ -1,0 +1,106 @@
+{
+  "name": "Mock Advisor (No AI Stub)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "advisor-chat",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "id": "webhook",
+      "name": "Webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || {};\nconst msg = (body.message || '').toLowerCase();\nlet response = '';\nlet action = 'none';\n\nif (msg.includes('привет')) {\n  response = \"Привет! Я Антон. Как твои успехи сегодня?\";\n} else if (msg.includes('сделал') || msg.includes('победа')) {\n  response = \"Отлично! Это настоящая победа. Я зафиксировал её в твоем профиле (+4 энергии).\";\n  action = 'save_victory';\n} else if (msg.includes('роль')) {\n  response = \"Твои аутентичные роли — это твоя сила. Какую именно мы сейчас обсуждаем?\";\n} else {\n  response = \"Я услышал тебя. Расскажи подробнее, как это связано с твоей аутентичностью?\";\n}\n\nreturn {\n  text: response,\n  action: action,\n  user_name: body.user_name,\n  original_msg: body.message\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 0],
+      "id": "logic-stub",
+      "name": "Mock Logic"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "check-action",
+              "leftValue": "={{ $json.action }}",
+              "rightValue": "save_victory",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [440, 0],
+      "id": "if-action",
+      "name": "Should Save?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://backend:8080/api/victories",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer [[СЮДА_НУЖНО_ПЕРЕДАТЬ_ТОКЕН]]"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"title\": \"Победа из чата\",\n  \"description\": \"{{ $json.original_msg }}\",\n  \"score\": 4\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, -50],
+      "id": "api-call-stub",
+      "name": "Save to DB (Stub)",
+      "notes": "Этот узел имитирует сохранение в базу через бэкенд"
+    },
+    {
+      "parameters": {
+        "options": {},
+        "responseBody": "={\n  \"text\": \"{{ $node['logic-stub'].json.text }}\"\n}"
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [900, 0],
+      "id": "respond",
+      "name": "Response"
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [ [ { "node": "logic-stub", "type": "main", "index": 0 } ] ] },
+    "logic-stub": { "main": [ [ { "node": "if-action", "type": "main", "index": 0 } ] ] },
+    "if-action": {
+      "main": [
+        [ { "node": "api-call-stub", "type": "main", "index": 0 } ],
+        [ { "node": "respond", "type": "main", "index": 0 } ]
+      ]
+    },
+    "api-call-stub": { "main": [ [ { "node": "respond", "type": "main", "index": 0 } ] ] }
+  }
+}

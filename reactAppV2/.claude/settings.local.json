@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create:*)",
+      "Bash(yes)",
+      "Bash(npm install:*)",
+      "Bash(docker compose:*)",
+      "Bash(node -e \"try { require\\(''docx''\\); console.log\\(''docx available''\\); } catch\\(e\\) { console.log\\(''docx not found''\\); }\")",
+      "Bash(node generate-tz.js)",
+      "Bash(node generate-tz.cjs)"
+    ]
+  }
+}

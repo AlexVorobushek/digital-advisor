@@ -1,0 +1,84 @@
+{
+  "name": "WebApp Advisor v2 (Fixed)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "advisor-chat",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [ 0, 0 ],
+      "id": "webhook-node",
+      "name": "Webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || {};\nreturn {\n  message: body.message || 'Привет',\n  user_name: body.user_name || 'Пользователь',\n  session_type: body.session_type || 'default'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [ 200, 0 ],
+      "id": "parse-input",
+      "name": "Parse Input"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-3-5-sonnet-20241022\",\n  \"max_tokens\": 1024,\n  \"system\": \"Ты - Антон. Коуч по аутентичному лидерству. Общайся на ты. Используй HTML.\",\n  \"messages\": [{ \"role\": \"user\", \"content\": \"{{ $json.message }}\" }]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [ 400, 0 ],
+      "id": "claude-api",
+      "name": "Call Claude"
+    },
+    {
+      "parameters": {
+        "options": {},
+        "responseBody": "={\n  \"text\": \"{{ $json.content ? $json.content[0].text : 'Ошибка: Claude не вернул текст. Проверьте логи n8n.' }}\"\n}"
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [ 650, -50 ],
+      "id": "success-response",
+      "name": "Success Response"
+    },
+    {
+      "parameters": {
+        "options": {},
+        "responseBody": "={\n  \"text\": \"Извини, произошла ошибка в n8n при вызове Claude. Проверь API ключ и баланс.\"\n}"
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [ 650, 150 ],
+      "id": "error-response",
+      "name": "Error Response"
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [ [ { "node": "Parse Input", "type": "main", "index": 0 } ] ] },
+    "Parse Input": { "main": [ [ { "node": "Call Claude", "type": "main", "index": 0 } ] ] },
+    "Call Claude": {
+      "main": [
+        [ { "node": "Success Response", "type": "main", "index": 0 } ],
+        [ { "node": "Error Response", "type": "main", "index": 0 } ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,10 @@
+# Root ignore
+.DS_Store
+.idea/
+.vscode/
+*.log
+.env
+node_modules/
+target/
+dist/
+build/
