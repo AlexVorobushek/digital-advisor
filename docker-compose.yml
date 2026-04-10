@@ -39,7 +39,7 @@ services:
       DB_NAME: advisor
       DB_USER: postgres
       DB_PASSWORD: postgres
-      # Внутри сети n8n теперь доступен по корню (без /n8n/)
+      # n8n теперь доступен по корню своего контейнера
       N8N_WEBHOOK_URL: http://n8n:5678/webhook/advisor-chat
       N8N_USER: admin
       N8N_PASSWORD: admin
