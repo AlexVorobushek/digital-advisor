@@ -14,8 +14,12 @@ public class ChronicleController extends BaseController {
     private ChronicleEntryRepository repository;
 
     @GetMapping
-    public List<ChronicleEntry> getAll() {
-        return repository.findAllByUserId(getCurrentUserId());
+    public java.util.Map<String, Object> getAll() {
+        List<ChronicleEntry> entries = repository.findAllByUserId(getCurrentUserId());
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
+        response.put("items", entries != null ? entries : new java.util.ArrayList<>());
+        response.put("count", entries != null ? entries.size() : 0);
+        return response;
     }
 
     @PostMapping

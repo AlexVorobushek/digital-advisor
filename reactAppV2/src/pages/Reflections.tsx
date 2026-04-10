@@ -19,7 +19,7 @@ export default function Reflections() {
     try {
       setLoading(true);
       const data = await api.get('/api/reflections');
-      setItems(data);
+      setItems(data.items || []);
     } catch (err) {
       console.error(err);
     } finally {

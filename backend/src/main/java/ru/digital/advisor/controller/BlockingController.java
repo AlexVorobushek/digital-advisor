@@ -14,8 +14,12 @@ public class BlockingController extends BaseController {
     private BlockingProcessRepository repository;
 
     @GetMapping
-    public List<BlockingProcess> getAll() {
-        return repository.findAllByUserId(getCurrentUserId());
+    public java.util.Map<String, Object> getAll() {
+        List<BlockingProcess> items = repository.findAllByUserId(getCurrentUserId());
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
+        response.put("items", items != null ? items : new java.util.ArrayList<>());
+        response.put("count", items != null ? items.size() : 0);
+        return response;
     }
 
     @PostMapping

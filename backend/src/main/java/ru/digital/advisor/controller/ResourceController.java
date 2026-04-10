@@ -14,8 +14,12 @@ public class ResourceController extends BaseController {
     private SuperResourceRepository repository;
 
     @GetMapping
-    public List<SuperResource> getAll() {
-        return repository.findAllByUserId(getCurrentUserId());
+    public java.util.Map<String, Object> getAll() {
+        List<SuperResource> resources = repository.findAllByUserId(getCurrentUserId());
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
+        response.put("items", resources != null ? resources : new java.util.ArrayList<>());
+        response.put("count", resources != null ? resources.size() : 0);
+        return response;
     }
 
     @PostMapping

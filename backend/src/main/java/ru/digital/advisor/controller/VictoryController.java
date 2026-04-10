@@ -23,9 +23,12 @@ public class VictoryController extends BaseController {
     private AuthenticRoleRepository roleRepository;
 
     @GetMapping
-    public List<Victory> getAll() {
+    public java.util.Map<String, Object> getAll() {
         List<Victory> victories = victoryRepository.findAllByUserId(getCurrentUserId());
-        return victories != null ? victories : new java.util.ArrayList<>();
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
+        response.put("items", victories != null ? victories : new java.util.ArrayList<>());
+        response.put("count", victories != null ? victories.size() : 0);
+        return response;
     }
 
     @PostMapping

@@ -20,8 +20,12 @@ public class RoleController extends BaseController {
     private UserRepository userRepository;
 
     @GetMapping
-    public List<AuthenticRole> getAll() {
-        return roleRepository.findAllByUserId(getCurrentUserId());
+    public java.util.Map<String, Object> getAll() {
+        List<AuthenticRole> roles = roleRepository.findAllByUserId(getCurrentUserId());
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
+        response.put("items", roles != null ? roles : new java.util.ArrayList<>());
+        response.put("count", roles != null ? roles.size() : 0);
+        return response;
     }
 
     @PostMapping

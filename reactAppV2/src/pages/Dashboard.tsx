@@ -16,7 +16,7 @@ export default function Dashboard() {
           api.get('/api/roles')
         ]);
         setMetrics(m);
-        setRoles(r);
+        setRoles(r.items || []);
       } catch (err) {
         console.error('Failed to load dashboard data', err);
       } finally {

@@ -28,9 +28,9 @@ export default function Victories() {
         api.get('/api/roles'),
         api.get('/api/resources')
       ]);
-      setItems(vData);
-      setRoles(rData);
-      setResources(resData);
+      setItems(vData.items || []);
+      setRoles(rData.items || []);
+      setResources(resData.items || []);
     } catch (err) {
       console.error(err);
     } finally {

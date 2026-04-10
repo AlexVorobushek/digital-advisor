@@ -14,8 +14,12 @@ public class FocusController extends BaseController {
     private FocusRepository repository;
 
     @GetMapping
-    public List<Focus> getAll() {
-        return repository.findAllByUserId(getCurrentUserId());
+    public java.util.Map<String, Object> getAll() {
+        List<Focus> focuses = repository.findAllByUserId(getCurrentUserId());
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
+        response.put("items", focuses != null ? focuses : new java.util.ArrayList<>());
+        response.put("count", focuses != null ? focuses.size() : 0);
+        return response;
     }
 
     @PostMapping

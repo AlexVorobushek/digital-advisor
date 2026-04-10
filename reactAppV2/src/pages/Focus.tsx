@@ -11,7 +11,7 @@ export default function Focus() {
     try {
       setLoading(true);
       const data = await api.get('/api/focuses');
-      setItems(data);
+      setItems(data.items || []);
     } catch (err) {
       console.error(err);
     } finally {

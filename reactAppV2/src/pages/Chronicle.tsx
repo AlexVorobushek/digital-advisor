@@ -32,8 +32,8 @@ export default function Chronicle() {
         api.get('/api/chronicle'),
         api.get('/api/roles')
       ]);
-      setItems(cData);
-      setRoles(rData);
+      setItems(cData.items || []);
+      setRoles(rData.items || []);
     } catch (err) {
       console.error(err);
     } finally {

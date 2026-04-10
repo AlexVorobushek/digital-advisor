@@ -23,7 +23,7 @@ export default function Roles() {
     try {
       setLoading(true);
       const data = await api.get('/api/roles');
-      setRoles(data);
+      setRoles(data.items || []);
     } catch (err) {
       console.error(err);
     } finally {

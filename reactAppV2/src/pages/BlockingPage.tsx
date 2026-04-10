@@ -24,7 +24,7 @@ export default function BlockingPage() {
     async function load() {
       try {
         const data = await api.get('/api/blocking');
-        setItems(data);
+        setItems(data.items || []);
       } catch (err) {
         console.error(err);
       } finally {
