@@ -24,7 +24,8 @@ public class VictoryController extends BaseController {
 
     @GetMapping
     public List<Victory> getAll() {
-        return victoryRepository.findAllByUserId(getCurrentUserId());
+        List<Victory> victories = victoryRepository.findAllByUserId(getCurrentUserId());
+        return victories != null ? victories : new java.util.ArrayList<>();
     }
 
     @PostMapping
