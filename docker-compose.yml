@@ -21,10 +21,9 @@ services:
       - N8N_BASIC_AUTH_ACTIVE=true
       - N8N_BASIC_AUTH_USER=admin
       - N8N_BASIC_AUTH_PASSWORD=admin
-      # URL через домен для вебхуков (HTTPS)
-      - WEBHOOK_URL=https://autorepetit.com/n8n/
-      # Путь под которым будет доступен n8n
       - N8N_PATH=/n8n/
+      - N8N_EDITOR_BASE_URL=https://autorepetit.com/n8n/
+      - WEBHOOK_URL=https://autorepetit.com/n8n/
     volumes:
       - n8n_data:/home/node/.n8n
 
@@ -41,7 +40,6 @@ services:
       DB_NAME: advisor
       DB_USER: postgres
       DB_PASSWORD: postgres
-      # Используем Production URL для постоянной работы (без -test)
       N8N_WEBHOOK_URL: http://n8n:5678/n8n/webhook/advisor-chat
       N8N_USER: admin
       N8N_PASSWORD: admin
